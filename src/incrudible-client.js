@@ -1344,21 +1344,21 @@ export const APP = {
 
       addButton.addEventListener("click", () => {
         /**
-         * The row just appended, announced so a consumer wiring up its own
-         * per-control listeners (input/change to refresh a preview, say)
-         * can attach them here too — nothing does that automatically for a
-         * row that didn't exist at mount time.
+         * The row just appended. A consumer's own render-time wiring never
+         * runs on it — this row didn't exist yet when that pass happened —
+         * so the one thing every list row needs regardless of consumer,
+         * keeping #preview-list current, is wired here directly rather
+         * than left for something outside the library to notice and do.
          *
          * @type {HTMLLIElement}
          */
         const addedLi = buildEntry(list.querySelectorAll("li").length, true);
 
+        addedLi
+          .querySelector("input")
+          .addEventListener("input", () => APP.formHelpers.renderPreview());
+
         list.append(addedLi);
-        fieldset.dispatchEvent(
-          new CustomEvent("item-added", {
-            detail: { input: addedLi.querySelector("input") },
-          }),
-        );
       });
 
       toolbar.append(addButton);

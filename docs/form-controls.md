@@ -607,12 +607,11 @@ never pre-populated from the config. Every entry shares the list's own
 never gaps). The first entry (`${name}-0`) never gets a remove button and
 is always present. `constraints` applies identically to every entry.
 
-Its `<fieldset>` dispatches `item-added` (`detail.input` is the new row's
-control) when "+ Add" appends a row, and `item-removed` when a row is
-removed. A consumer that wires up its own per-control listeners — input
-handlers to refresh a live preview, say — needs to attach the same
-listeners on `item-added`'s `detail.input`, since a row created after
-mount was never touched by whatever set those listeners up initially.
+A row appended by "+ Add" is never seen by a consumer's own render-time
+wiring, since it doesn't exist yet when that pass runs — so the library
+wires the one thing every row needs regardless of consumer, keeping
+`#preview-list` current, directly on each new row itself. Nothing external
+needs to react to a row being added for the preview to work.
 
 ```json
 {
