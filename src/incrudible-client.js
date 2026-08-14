@@ -1273,7 +1273,7 @@ export const APP = {
        * closing over this one render's entry/itemType/v rather than
        * round-tripping through the fieldset's dataset.
        *
-       * @param {number} index - Row position, used for the id and name suffix.
+       * @param {number} index - Row position, used for the id.
        * @param {boolean} removable - Whether to append a remove button.
        * @returns {HTMLLIElement} The entry row.
        */
@@ -1286,7 +1286,10 @@ export const APP = {
         const entryLi = document.createElement("li");
 
         /**
-         * The row's input, built straight from the item type.
+         * The row's input, built straight from the item type. Every row
+         * shares the list's own name — the standard HTML multi-value
+         * pattern — so FormData.getAll(name) collects every entry as one
+         * array; only the id is indexed, to stay unique per row.
          *
          * @type {HTMLInputElement}
          */
@@ -1294,7 +1297,7 @@ export const APP = {
         input.id = `${entry.id}-${index}`;
 
         if (entry.name) {
-          input.name = `${entry.name}_${index}`;
+          input.name = entry.name;
         }
 
         // Rows are built here rather than through the shared path, so the
@@ -1350,16 +1353,13 @@ export const APP = {
       fieldset.addEventListener("item-removed", () => {
         list.querySelectorAll("li").forEach((entryLi, index) => {
           /**
-           * The surviving row's input, renumbered to close the gap.
+           * The surviving row's input, re-id'd to close the gap. Every
+           * row already shares the same name, so nothing there needs
+           * renumbering.
            *
            * @type {HTMLInputElement}
            */
-          const input = entryLi.querySelector("input");
-          input.id = `${entry.id}-${index}`;
-
-          if (entry.name) {
-            input.name = `${entry.name}_${index}`;
-          }
+          entryLi.querySelector("input").id = `${entry.id}-${index}`;
         });
       });
 

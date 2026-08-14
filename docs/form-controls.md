@@ -600,11 +600,12 @@ An extendable/retractable list of same-typed inputs. `type` is either bare
 (e.g. `"list:url"`, `"list:number"`) naming which `InputType` each entry
 renders as. Like `Fieldset`, it isn't itself value-bearing: no
 `value`/`defaultValue` - it always starts with exactly one blank entry,
-never pre-populated from the config. Each entry is named
-`${name}_${index}`, id'd `${name}-${index}` (0-based; removing an entry
-re-indexes every entry after it, so there are never gaps). The first entry
-(`${name}_0`) never gets a remove button and is always present.
-`constraints` applies identically to every entry:
+never pre-populated from the config. Every entry shares the list's own
+`name` — the standard HTML multi-value pattern, collected as an array via
+`FormData.getAll(name)` — and is individually id'd `${name}-${index}`
+(0-based; removing an entry re-indexes the ids after it, so there are
+never gaps). The first entry (`${name}-0`) never gets a remove button and
+is always present. `constraints` applies identically to every entry:
 
 ```json
 {
@@ -634,10 +635,11 @@ Bare `"list"` (defaults each entry to `text`):
 
 No `modals`, `alerts`, `footnotes`, or `wizards` support on the list itself
 (no single control has "the" list's value to key rules off of). It supports
-`criteria`, so the entire list can be shown or hidden in place. Its
-always-present first entry's name
-(`${name}_0`) can be used as a `when` source elsewhere in the
-schema, since that's a real, unchanging control name.
+`criteria`, so the entire list can be shown or hidden in place. Its shared
+`name` — always represented by at least the always-present first entry —
+can be used as a `when` source elsewhere in the schema, since that's a
+real, unchanging control name; the dependency resolves against whichever
+entries are filled, pooled the same way any other shared-name group is.
 
 </details>
 

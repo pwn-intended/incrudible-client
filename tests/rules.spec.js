@@ -638,7 +638,7 @@ test("starts a list hidden when a wizard owns it", async ({ page, app }) => {
   expect(
     await page
       .locator("#app-form")
-      .evaluate((form) => new FormData(form).get("notes_0")),
+      .evaluate((form) => new FormData(form).get("notes")),
   ).toBe("first");
 });
 

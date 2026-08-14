@@ -464,7 +464,7 @@ test.describe("criteria workflow", () => {
     );
     await expect(page.locator("textarea#approval-notes")).toHaveCount(1);
     await expect(page.locator("fieldset#conditional-tags")).toHaveCount(1);
-    await expect(page.locator('input#conditional-tags-0[name="tags_0"]')).toHaveCount(
+    await expect(page.locator('input#conditional-tags-0[name="tags"]')).toHaveCount(
       1,
     );
     await expect(page.locator('#include-details[type="checkbox"]')).toHaveCount(
@@ -556,7 +556,7 @@ test.describe("criteria workflow", () => {
     expect(
       await page
         .locator("#app-form")
-        .evaluate((form) => new FormData(form).get("tags_0")),
+        .evaluate((form) => new FormData(form).get("tags")),
     ).toBe("alpha");
     await page.locator("#show-tags").uncheck();
     await expect(list).toBeHidden();
@@ -564,7 +564,7 @@ test.describe("criteria workflow", () => {
     expect(
       await page
         .locator("#app-form")
-        .evaluate((form) => new FormData(form).has("tags_0")),
+        .evaluate((form) => new FormData(form).has("tags")),
     ).toBe(false);
   });
 
@@ -818,8 +818,8 @@ test("keeps dynamic lists correctly indexed and resets extra rows", async ({
     })),
   );
   expect(rows).toEqual([
-    { id: "tags-0", name: "tags_0", value: "first" },
-    { id: "tags-1", name: "tags_1", value: "last" },
+    { id: "tags-0", name: "tags", value: "first" },
+    { id: "tags-1", name: "tags", value: "last" },
   ]);
 
   await page.locator("#app-form").evaluate((form) => form.reset());

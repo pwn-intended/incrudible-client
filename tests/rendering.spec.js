@@ -485,7 +485,7 @@ test("renders typed lists with their constraints on the fieldset", async ({
     disabled: true,
     inputType: "number",
     inputId: "amounts-0",
-    inputName: "amounts_0",
+    inputName: "amounts",
     inputRequired: true,
     inputMin: "0",
     inputMax: "500",
