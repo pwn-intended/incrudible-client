@@ -1343,7 +1343,22 @@ export const APP = {
       addButton.textContent = "+ Add";
 
       addButton.addEventListener("click", () => {
-        list.append(buildEntry(list.querySelectorAll("li").length, true));
+        /**
+         * The row just appended, announced so a consumer wiring up its own
+         * per-control listeners (input/change to refresh a preview, say)
+         * can attach them here too — nothing does that automatically for a
+         * row that didn't exist at mount time.
+         *
+         * @type {HTMLLIElement}
+         */
+        const addedLi = buildEntry(list.querySelectorAll("li").length, true);
+
+        list.append(addedLi);
+        fieldset.dispatchEvent(
+          new CustomEvent("item-added", {
+            detail: { input: addedLi.querySelector("input") },
+          }),
+        );
       });
 
       toolbar.append(addButton);

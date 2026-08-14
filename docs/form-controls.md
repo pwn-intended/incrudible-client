@@ -605,7 +605,14 @@ never pre-populated from the config. Every entry shares the list's own
 `FormData.getAll(name)` — and is individually id'd `${name}-${index}`
 (0-based; removing an entry re-indexes the ids after it, so there are
 never gaps). The first entry (`${name}-0`) never gets a remove button and
-is always present. `constraints` applies identically to every entry:
+is always present. `constraints` applies identically to every entry.
+
+Its `<fieldset>` dispatches `item-added` (`detail.input` is the new row's
+control) when "+ Add" appends a row, and `item-removed` when a row is
+removed. A consumer that wires up its own per-control listeners — input
+handlers to refresh a live preview, say — needs to attach the same
+listeners on `item-added`'s `detail.input`, since a row created after
+mount was never touched by whatever set those listeners up initially.
 
 ```json
 {

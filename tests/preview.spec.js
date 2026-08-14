@@ -57,17 +57,22 @@ test("renders list entries as a single bulleted preview row", async ({
     ],
   });
 
-  await page.locator("#tags .list-add").click();
   await page.locator("#tags-0").fill("alpha");
+
+  // A row added after mount gets no special treatment from the caller —
+  // filling it fires the same input event as any other row, and that
+  // alone has to be enough to bring the preview up to date.
+  await page.locator("#tags .list-add").click();
   await page.locator("#tags-1").fill("  beta  ");
   await page.locator("#unnamed-0").fill("hidden from preview");
-  await page.evaluate(() => APP.formHelpers.renderPreview());
 
   // Blank entries drop out, values are trimmed, and a name-less or empty
   // list contributes no row at all.
   expect(await page.evaluate(() => APP.preview)).toEqual([
     [undefined, "Tags", "- alpha\n- beta"],
   ]);
+  await expect(page.locator("#preview-list")).toContainText("alpha");
+  await expect(page.locator("#preview-list")).toContainText("beta");
 
   // A disabled list is excluded even when it holds values.
   await page.evaluate(() => {
@@ -76,6 +81,25 @@ test("renders list entries as a single bulleted preview row", async ({
   });
   expect(await page.evaluate(() => APP.preview)).toEqual([]);
   await expect(page.locator("#copy-preview")).toBeDisabled();
+});
+
+test("previews a row added after mount even when the first entry is blank", async ({
+  page,
+  app,
+}) => {
+  await mountSchema(page, {
+    schema: [{ type: "list", id: "tags", name: "tags", label: "Tags" }],
+  });
+
+  // The first entry stays blank; only the appended row gets a value.
+  // Nothing but that row's own input event drives the refresh.
+  await page.locator("#tags .list-add").click();
+  await page.locator("#tags-1").fill("beta");
+
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "Tags", "- beta"],
+  ]);
+  await expect(page.locator("#preview-list")).toContainText("beta");
 });
 
 test("falls back to the list name when no label text is rendered", async ({

@@ -39,7 +39,14 @@ const mountSchema = async (
       APP.formControls.replaceChildren(APP.renderEntries(schema));
 
       if (listeners) {
-        APP.formHelpers.formControls.forEach((control) => {
+        /**
+         * Wires one control's input/change reactions. Shared by the
+         * mount-time sweep below and by every list's `item-added` handler,
+         * since a row appended after mount was never touched by that sweep.
+         *
+         * @param {HTMLElement} control - Control to wire up.
+         */
+        const attachControlListeners = (control) => {
           control.addEventListener("input", () => {
             if (syncOnInput) {
               APP.formHelpers.syncWizards();
@@ -58,6 +65,14 @@ const mountSchema = async (
               APP.formHelpers.renderPreview();
             }
           });
+        };
+
+        APP.formHelpers.formControls.forEach(attachControlListeners);
+
+        APP.formHelpers.lists.forEach((list) => {
+          list.addEventListener("item-added", (event) =>
+            attachControlListeners(event.detail.input),
+          );
         });
       }
 
