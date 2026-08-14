@@ -74,6 +74,14 @@ test("renders list entries as a single bulleted preview row", async ({
   await expect(page.locator("#preview-list")).toContainText("alpha");
   await expect(page.locator("#preview-list")).toContainText("beta");
 
+  // Removing a row drops its value from the preview immediately too —
+  // no stale entry left behind from before the row disappeared.
+  await page.locator("#tags-1").locator("xpath=..").locator(".list-remove").click();
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "Tags", "- alpha"],
+  ]);
+  await expect(page.locator("#preview-list")).not.toContainText("beta");
+
   // A disabled list is excluded even when it holds values.
   await page.evaluate(() => {
     document.getElementById("tags").disabled = true;

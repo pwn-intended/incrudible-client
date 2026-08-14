@@ -1323,6 +1323,7 @@ export const APP = {
           removeButton.addEventListener("click", () => {
             entryLi.remove();
             fieldset.dispatchEvent(new CustomEvent("item-removed"));
+            APP.formHelpers.renderPreview();
           });
 
           entryLi.append(removeButton);
