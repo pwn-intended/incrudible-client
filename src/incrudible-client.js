@@ -2504,7 +2504,7 @@ export const APP = {
          * @type {string}
          */
         const rowText = this.preview
-          .map(([, label, value]) => `${label}: ${value}`)
+          .map(([, label, value]) => (label ? `${label}: ${value}` : value))
           .join(" | ");
 
         return rowText;

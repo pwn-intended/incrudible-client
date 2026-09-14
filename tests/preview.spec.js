@@ -155,8 +155,10 @@ test("previews a checked boolean checkbox as its label alone", async ({
     [undefined, "", "Urgent"],
     [undefined, "Valued", "escalated"],
   ]);
+  // A row with no label is copied as its value alone, with no leading
+  // "label:" separator.
   expect(await page.evaluate(() => APP.copyText)).toBe(
-    ": Urgent | Valued: escalated",
+    "Urgent | Valued: escalated",
   );
 
   const terms = page.locator("#preview-list dt");
