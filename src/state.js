@@ -2,7 +2,6 @@ export const RULE_KEYS = Object.freeze([
   "modalRules",
   "articleRules",
   "alertRules",
-  "footnoteRules",
   "wizardRules",
   "criteriaRules",
   "requisitionRules",

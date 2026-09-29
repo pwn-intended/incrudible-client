@@ -669,7 +669,6 @@ test("routes each rule family through the store independently", async ({
       "modalRules",
       "articleRules",
       "alertRules",
-      "footnoteRules",
       "wizardRules",
       "criteriaRules",
       "requisitionRules",

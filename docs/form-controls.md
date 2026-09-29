@@ -915,8 +915,10 @@ resolution.
 Because the token stays on the control, reading the form directly with
 `new FormData(APP.form)` yields the raw configured string. Submit `APP.values`
 to send what the preview showed: it resolves references and appends any
-matching `footnotes` as `value (footnote)`, exactly as the preview renders
-them.
+matching `footnotes` as `value (first) (second)`, one set of parentheses per
+passing rule, exactly as the preview renders them. A footnote belongs to its
+control's value, so an `!{#id}` token that interpolates that control carries
+the footnote with it.
 
 Rule tests match a dropdown by its option **label**, while the submitted value
 and the preview use the option's **value**. A rule therefore tests against what

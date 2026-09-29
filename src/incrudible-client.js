@@ -50,6 +50,16 @@ const PATTERN_KEY = /^\/(.*)\/([a-z]*)$/;
 const criteriaOrders = new WeakMap();
 
 /**
+ * Footnote rules per rendered control, taken from the control's own schema
+ * entry as it renders. The control is the key, so a footnote can't be
+ * missed by an id/name lookup, and a control removed from the DOM drops its
+ * rules with it.
+ *
+ * @type {WeakMap<HTMLElement, Rule[]>}
+ */
+const footnoteRules = new WeakMap();
+
+/**
  * The single store every accessor on APP reads through and every setter
  * dispatches into.
  *
@@ -716,7 +726,7 @@ export const APP = {
                 const resolved =
                   APP._internals.form.resolveValueReferences(value, context);
 
-                return footnote ? `${resolved} (${footnote})` : resolved;
+                return footnote ? `${resolved} ${footnote}` : resolved;
               }),
             ),
           ];
@@ -1539,6 +1549,10 @@ export const APP = {
       // rendered, here and in the requisition sync alike.
       if (v.required && element.type !== "checkbox") {
         element.required = true;
+      }
+
+      if (entry.footnotes?.length) {
+        footnoteRules.set(element, entry.footnotes);
       }
     };
 
@@ -2746,7 +2760,7 @@ export const APP = {
                 : "";
             }
           } else {
-            value = control.value;
+            value = this.resolveValueReferences(control.value, control);
           }
 
           value = value.trim();
@@ -2756,15 +2770,16 @@ export const APP = {
           }
 
           /**
-           * Every passing footnote for this control, joined — a control
-           * may carry several, and all that match are appended.
+           * Every passing footnote for this control, each in its own
+           * parentheses - a control may carry several, and all that match
+           * are appended.
            *
            * @type {string | undefined}
            */
           const footnote = getFootnote(control);
 
           if (footnote) {
-            value = `${value} (${footnote})`;
+            value = `${value} ${footnote}`;
           }
 
           /**
@@ -2961,13 +2976,36 @@ export const APP = {
            */
           const source = control.ownerDocument?.getElementById(id);
 
-          return source?.value
-            ? this.resolveValueReferences(
-                source.value,
-                source,
-                new Set(resolvedIds).add(id),
-              )
-            : token;
+          if (!source?.value) {
+            return token;
+          }
+
+          /**
+           * The ids already expanded on this chain, this one included, so
+           * neither the value nor its footnote can loop back into it.
+           *
+           * @type {Set<string>}
+           */
+          const chain = new Set(resolvedIds).add(id);
+          /**
+           * The source's value, resolved the same way its own row would be.
+           *
+           * @type {string}
+           */
+          const resolved = this.resolveValueReferences(
+            source.value,
+            source,
+            chain,
+          );
+          /**
+           * The source's footnote, which travels with its value wherever
+           * that value is interpolated.
+           *
+           * @type {string}
+           */
+          const footnote = getFootnote(source, chain);
+
+          return footnote ? `${resolved} ${footnote}` : resolved;
         });
       },
       /**
@@ -3890,26 +3928,33 @@ function dependencyPasses(key, test, targetForm) {
 }
 
 /**
- * The resolved footnote a control contributes, or an empty string when no
- * rule applies. Rules are keyed by the control's id first and then by its
- * name, and every rule that passes contributes, joined in authored order.
+ * The resolved footnotes a control contributes, each in its own
+ * parentheses, or an empty string when no rule applies. The rules are the
+ * ones the control's own schema entry authored, and every rule that passes
+ * contributes, in authored order.
  *
- * @param {HTMLElement} control - The control the rules are keyed to.
- * @returns {string} The resolved footnote.
+ * @param {HTMLElement} control - The control that owns the rules.
+ * @param {Set<string>} [resolvedIds] - Ids already expanded on the
+ *   interpolation chain this footnote is part of, so a footnote that
+ *   references its own control can't recurse.
+ * @returns {string} The resolved footnotes, e.g. "(a) (b)".
  */
-function getFootnote(control) {
+function getFootnote(control, resolvedIds = new Set()) {
   return (
-    (
-      APP.rules.footnoteRules[control.id] ??
-      APP.rules.footnoteRules[control.name]
-    )
+    footnoteRules
+      .get(control)
       ?.filter(
         (r) =>
           APP._internals.match(r.test, APP._internals.getValue(control)) &&
           APP._internals.when(r.when, control.form),
       )
-      .map((r) =>
-        APP._internals.form.resolveValueReferences(r.footnote, control),
+      .map(
+        (r) =>
+          `(${APP._internals.form.resolveValueReferences(
+            r.footnote,
+            control,
+            resolvedIds,
+          )})`,
       )
       .join(" ") ?? ""
   );

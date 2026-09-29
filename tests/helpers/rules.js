@@ -24,7 +24,6 @@ const buildRuleMaps = (schema) => {
     "modals",
     "articles",
     "alerts",
-    "footnotes",
     "wizards",
     "autofills",
   ];
@@ -38,7 +37,6 @@ const buildRuleMaps = (schema) => {
     modals: new Map(),
     articles: new Map(),
     alerts: new Map(),
-    footnotes: new Map(),
     wizards: new Map(),
     criteria: new Map(),
     requisitions: new Map(),
@@ -129,7 +127,6 @@ const RULE_MAP_PROPERTIES = {
   modals: "modalRules",
   articles: "articleRules",
   alerts: "alertRules",
-  footnotes: "footnoteRules",
   wizards: "wizardRules",
   criteria: "criteriaRules",
   requisitions: "requisitionRules",

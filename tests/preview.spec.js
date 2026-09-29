@@ -240,7 +240,7 @@ test("appends every matching footnote, gated by dependencies", async ({
         id: "case-id",
         name: "caseId",
         label: "Case",
-        // Every rule that passes contributes, and the results are joined.
+        // Every rule that passes contributes, each in its own parentheses.
         footnotes: [
           { test: "/^C-/", footnote: "assigned to !{#reviewer}" },
           {
@@ -266,7 +266,7 @@ test("appends every matching footnote, gated by dependencies", async ({
   await page.locator("#audited").check();
   await page.evaluate(() => APP.formHelpers.renderPreview());
   await expect(page.locator("#preview-list")).toContainText(
-    "C-42 (assigned to Ada audited)",
+    "C-42 (assigned to Ada) (audited)",
   );
 
   // A value that fails every footnote test keeps its bare value.
@@ -274,6 +274,232 @@ test("appends every matching footnote, gated by dependencies", async ({
   await page.evaluate(() => APP.formHelpers.renderPreview());
   await expect(page.locator("#preview-list")).toContainText("X-1");
   await expect(page.locator("#preview-list")).not.toContainText("X-1 (");
+});
+
+test("gates footnotes on a checkbox and an input elsewhere in the same form", async ({
+  page,
+  app,
+}) => {
+  await mountSchema(page, {
+    schema: [
+      { type: "checkbox", id: "fc4", name: "fc4", label: "FC4" },
+      { type: "text", id: "fc2", name: "fc2", label: "FC2" },
+      {
+        type: "text",
+        id: "target1",
+        name: "target1",
+        label: "Target1",
+        footnotes: [
+          {
+            test: "/.*/",
+            when: [["fc4", true]],
+            footnote: "A remote-controlled checkbox footnote",
+          },
+        ],
+      },
+      {
+        type: "text",
+        id: "target2",
+        name: "target2",
+        label: "Target2",
+        footnotes: [
+          // `/.*/` matches an empty string too, so it can't gate on
+          // presence — `/.+/` (one or more characters) is what actually
+          // withholds the footnote until fc2 has content.
+          {
+            test: "exact-value",
+            when: [["fc2", "/.+/"]],
+            footnote: "A remote-controlled input footnote",
+          },
+        ],
+      },
+    ],
+  });
+
+  await page.locator("#target1").fill("some value");
+  await page.locator("#target2").fill("exact-value");
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  // Neither dependency is satisfied yet, so both stay bare.
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "Target1", "some value"],
+    [undefined, "Target2", "exact-value"],
+  ]);
+
+  await page.locator("#fc4").check();
+  await page.locator("#fc2").fill("anything");
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "", "FC4"],
+    [undefined, "FC2", "anything"],
+    [undefined, "Target1", "some value (A remote-controlled checkbox footnote)"],
+    [undefined, "Target2", "exact-value (A remote-controlled input footnote)"],
+  ]);
+});
+
+test("gates footnotes on dependencies that are themselves wizard-revealed", async ({
+  page,
+  app,
+}) => {
+  await mountSchema(page, {
+    schema: [
+      {
+        type: "checkbox",
+        id: "invoke1",
+        name: "invoke1",
+        label: "Invoke1",
+        wizards: [
+          {
+            test: true,
+            wizard: { type: "checkbox", id: "fc4", name: "fc4", label: "FC4" },
+          },
+        ],
+      },
+      {
+        type: "checkbox",
+        id: "invoke2",
+        name: "invoke2",
+        label: "Invoke2",
+        wizards: [
+          {
+            test: true,
+            wizard: {
+              type: "text",
+              id: "fc2",
+              name: "fc2",
+              label: "FC2",
+              // Interpolates another field's value, as in the live case.
+              defaultValue: "seen: !{#invoke2}",
+            },
+          },
+        ],
+      },
+      {
+        type: "text",
+        id: "target1",
+        name: "target1",
+        label: "Target1",
+        footnotes: [
+          {
+            test: "/.*/",
+            when: [["fc4", true]],
+            footnote: "A remote-controlled checkbox footnote",
+          },
+        ],
+      },
+      {
+        type: "text",
+        id: "target2",
+        name: "target2",
+        label: "Target2",
+        footnotes: [
+          {
+            test: "exact-value",
+            when: [["fc2", "/.+/"]],
+            footnote: "A remote-controlled input footnote",
+          },
+        ],
+      },
+    ],
+  });
+
+  await page.locator("#target1").fill("some value");
+  await page.locator("#target2").fill("exact-value");
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  // Neither invoker is checked yet, so fc4/fc2 don't exist to satisfy
+  // either dependency.
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "Target1", "some value"],
+    [undefined, "Target2", "exact-value"],
+  ]);
+
+  await page.locator("#invoke1").check();
+  await page.locator("#fc4").check();
+  await page.locator("#invoke2").check();
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "", "Invoke1"],
+    [undefined, "", "FC4"],
+    [undefined, "", "Invoke2"],
+    [undefined, "FC2", "seen: true"],
+    [undefined, "Target1", "some value (A remote-controlled checkbox footnote)"],
+    [undefined, "Target2", "exact-value (A remote-controlled input footnote)"],
+  ]);
+});
+
+test("carries a footnote into every value that interpolates its control", async ({
+  page,
+  app,
+}) => {
+  await mountSchema(page, {
+    schema: [
+      { type: "text", id: "text-1", name: "text1", label: "Text1" },
+      { type: "checkbox", id: "checkbox-1", label: "Checkbox1" },
+      {
+        type: "text",
+        id: "parent",
+        name: "parent",
+        label: "Parent",
+        defaultValue: "Asked !{#fn-select}",
+      },
+      // Nameless, so it has no row of its own: its value, footnote
+      // included, only ever reaches the preview through the parent.
+      {
+        type: "select",
+        id: "fn-select",
+        label: "FnSelect",
+        options: [
+          { label: "d", value: "Who" },
+          { label: "e", value: "What" },
+        ],
+        footnotes: [
+          {
+            test: "e",
+            when: [["text-1", "/.+/"]],
+            footnote: "Blah blah blah",
+          },
+          {
+            test: "/.+/",
+            when: [["checkbox-1", true]],
+            footnote: "Abrakadabra alakazam",
+          },
+        ],
+      },
+    ],
+  });
+
+  await page.locator("#fn-select").selectOption({ label: "e" });
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  // The dependency is empty, so the interpolated value stays bare.
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "Parent", "Asked What"],
+  ]);
+
+  await page.locator("#text-1").fill("anything");
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  expect(await page.evaluate(() => APP.preview)).toEqual([
+    [undefined, "Text1", "anything"],
+    [undefined, "Parent", "Asked What (Blah blah blah)"],
+  ]);
+  expect(await page.evaluate(() => APP.values.parent)).toEqual([
+    "Asked What (Blah blah blah)",
+  ]);
+
+  // A second passing rule gets its own parentheses, in authored order.
+  await page.locator("#checkbox-1").check();
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  expect(await page.evaluate(() => APP.values.parent)).toEqual([
+    "Asked What (Blah blah blah) (Abrakadabra alakazam)",
+  ]);
+  await expect(page.locator("#preview-list")).toContainText(
+    "Asked What (Blah blah blah) (Abrakadabra alakazam)",
+  );
 });
 
 test("excludes unnamed and disabled controls from the preview", async ({
