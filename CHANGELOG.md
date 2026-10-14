@@ -22,7 +22,6 @@
 * keep hidden controls out of rules and submissions ([c54f93a](https://github.com/pwn-intended/incrudible-client/commit/c54f93adb90c319321a16e4c3bfdc2c993bfb600))
 * keep preview prefixes app local ([b0d6531](https://github.com/pwn-intended/incrudible-client/commit/b0d6531201cca3317fb321be1524506936aff513))
 * refresh the preview when a list row is removed ([d1f6e6e](https://github.com/pwn-intended/incrudible-client/commit/d1f6e6eeb178d053d7879aa6325c42ef86ee514d))
-* resolve value references that point at a list ([dd0eaa6](https://github.com/pwn-intended/incrudible-client/commit/dd0eaa648266582975efc2d87d864c0db2ad28dd))
 * resolve value references that point at a list ([f84f6c1](https://github.com/pwn-intended/incrudible-client/commit/f84f6c1d9fc6f5db081d2121f5f695e5d4104805))
 * settle wizard and criteria visibility in one sync ([32461aa](https://github.com/pwn-intended/incrudible-client/commit/32461aa014ff4f1a942d446944f520e42f9a2080))
 * share one name across list entries instead of indexing it ([c030249](https://github.com/pwn-intended/incrudible-client/commit/c0302499756641b663e9d9624fbc72001ac042a0))
