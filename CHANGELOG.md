@@ -7,7 +7,6 @@
 
 * add conditional form rules ([be893c8](https://github.com/pwn-intended/incrudible-client/commit/be893c8f98e7d768cab1b23731ff43953121810e))
 * add conditional value references ([cddcd39](https://github.com/pwn-intended/incrudible-client/commit/cddcd39a98765a94b8484080769d719b24f83f77))
-* keep toasts on screen for ten seconds ([3f4d976](https://github.com/pwn-intended/incrudible-client/commit/3f4d9766d428b0b091505619a6135eadfa89a37e))
 * keep toasts on screen for ten seconds ([2e65f54](https://github.com/pwn-intended/incrudible-client/commit/2e65f54d974cb1e2ff1961016c6a5189958bbcc9))
 
 
@@ -23,7 +22,6 @@
 * keep hidden controls out of rules and submissions ([c54f93a](https://github.com/pwn-intended/incrudible-client/commit/c54f93adb90c319321a16e4c3bfdc2c993bfb600))
 * keep preview prefixes app local ([b0d6531](https://github.com/pwn-intended/incrudible-client/commit/b0d6531201cca3317fb321be1524506936aff513))
 * refresh the preview when a list row is removed ([d1f6e6e](https://github.com/pwn-intended/incrudible-client/commit/d1f6e6eeb178d053d7879aa6325c42ef86ee514d))
-* resolve value references in APP.values ([7a742e6](https://github.com/pwn-intended/incrudible-client/commit/7a742e6723c62a3dff2a0305c7e4c5718916dc28))
 * resolve value references that point at a list ([dd0eaa6](https://github.com/pwn-intended/incrudible-client/commit/dd0eaa648266582975efc2d87d864c0db2ad28dd))
 * resolve value references that point at a list ([f84f6c1](https://github.com/pwn-intended/incrudible-client/commit/f84f6c1d9fc6f5db081d2121f5f695e5d4104805))
 * settle wizard and criteria visibility in one sync ([32461aa](https://github.com/pwn-intended/incrudible-client/commit/32461aa014ff4f1a942d446944f520e42f9a2080))
