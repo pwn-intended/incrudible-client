@@ -1,6 +1,6 @@
 {
 	"name": "incrudible-client",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Shared client-side JS framework for InCRUDibly-based Apps Script apps, served via jsDelivr's GitHub CDN mode.",
 	"license": "MIT",
 	"type": "module",
