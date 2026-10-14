@@ -956,10 +956,14 @@ the user sees, not what is sent.
 
 Every token in the original configured string is resolved from a same-form
 control by `id`, so a value can contain more than one reference. An unknown or
-empty source leaves its token unchanged, and injected text is not parsed again.
+empty source leaves its token unchanged. Injected text is resolved in turn, so a
+reference can reach a control whose own value references another; a token that
+would loop back into its own chain is left unchanged.
 Only dropdown, checkbox, and radio values, plus footnotes on any workflow form
 control, are interpolation destinations; referenced controls may be any
-workflow form control. Feedback forms do not interpolate these references.
+workflow form control. A reference to a list's `id` inserts its filled entries
+joined by a comma and a space, blank entries skipped; an empty list leaves the token
+unchanged. Feedback forms do not interpolate these references.
 
 </details>
 

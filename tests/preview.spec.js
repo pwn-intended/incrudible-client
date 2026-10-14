@@ -276,6 +276,46 @@ test("appends every matching footnote, gated by dependencies", async ({
   await expect(page.locator("#preview-list")).not.toContainText("X-1 (");
 });
 
+test("interpolates a list reference as its filled entries", async ({
+  page,
+  app,
+}) => {
+  await mountSchema(page, {
+    schema: [
+      { type: "list", id: "tags", name: "tags", label: "Tags" },
+      {
+        type: "text",
+        id: "case-id",
+        name: "caseId",
+        label: "Case",
+        footnotes: [{ test: "/^C-/", footnote: "tagged !{#tags}" }],
+      },
+    ],
+  });
+
+  await page.locator("#case-id").fill("C-42");
+
+  // An empty list leaves the token in place.
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+  await expect(page.locator("#preview-list")).toContainText(
+    "C-42 (tagged !{#tags})",
+  );
+
+  // Blank rows drop out; the rest join in row order.
+  await page.locator("#tags-0").fill("alpha");
+  await page.locator("#tags .list-add").click();
+  await page.locator("#tags .list-add").click();
+  await page.locator("#tags-2").fill("beta");
+  await page.evaluate(() => APP.formHelpers.renderPreview());
+
+  await expect(page.locator("#preview-list")).toContainText(
+    "C-42 (tagged alpha, beta)",
+  );
+  expect(await page.evaluate(() => APP.values.caseId)).toEqual([
+    "C-42 (tagged alpha, beta)",
+  ]);
+});
+
 test("gates footnotes on a checkbox and an input elsewhere in the same form", async ({
   page,
   app,
