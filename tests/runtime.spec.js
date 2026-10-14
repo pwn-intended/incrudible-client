@@ -120,7 +120,10 @@ test("removes a toast and collapses the container after its lifetime", async ({
   // The default variant is note.
   await expect(page.getByRole("status").last()).toHaveClass("toast toast-note open");
 
-  await page.clock.runFor(3100);
+  await page.clock.runFor(9900);
+  await expect(page.getByRole("status")).toHaveCount(2);
+
+  await page.clock.runFor(200);
   await expect(page.getByRole("status")).toHaveCount(0);
   await expect(container).not.toHaveClass(/open/);
 });

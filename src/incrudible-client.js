@@ -1910,7 +1910,8 @@ export const APP = {
   },
 
   /**
-   * Shows a transient status message, removed after three seconds.
+   * Shows a transient status message, removed after ten seconds.
+   * incrudibly-styled times the toast's fade-out to end at the same moment.
    *
    * @param {string} message - Text to display.
    * @param {string} [variant] - Toast variant.
@@ -1952,7 +1953,7 @@ export const APP = {
       if (!APP.toastContainer.childElementCount) {
         APP.toastContainer.classList.remove("open");
       }
-    }, 3000);
+    }, 10000);
   },
 
   /**
