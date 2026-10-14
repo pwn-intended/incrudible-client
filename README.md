@@ -5,7 +5,7 @@ built via `esbuild` and served via jsDelivr's GitHub CDN mode. Production
 consumers should pin an immutable release tag:
 
 ```text
-https://cdn.jsdelivr.net/gh/purpl3pineapple/incrudible-client@v1.0.0/dist/incrudible-client.min.js
+https://cdn.jsdelivr.net/gh/pwn-intended/incrudible-client@incrudible-client-v1.1.0/dist/incrudible-client.min.js
 ```
 
 `APP.imageToUpload(file)` reads a browser `File` and resolves to
