@@ -44,14 +44,14 @@ because pull requests are squash merged.
 Release Please watches `main` and maintains a release pull request containing
 the next package version and changelog. Merge that PR when the accumulated
 changes are ready to publish. The merge creates the GitHub release and immutable
-version tag, such as `v1.0.1`. This pull request is a release batching mechanism,
-not a request for peer approval.
+version tag, such as `incrudible-client-v1.1.0`. This pull request is a
+release batching mechanism, not a request for peer approval.
 
 Do not manually edit package versions, changelogs, or tags during the normal
 release flow. Consumers should use an exact jsDelivr tag rather than `@main`:
 
 ```text
-https://cdn.jsdelivr.net/gh/purpl3pineapple/incrudible-client@v1.0.1/dist/incrudible-client.min.js
+https://cdn.jsdelivr.net/gh/pwn-intended/incrudible-client@incrudible-client-v1.1.0/dist/incrudible-client.min.js
 ```
 
 An urgent fix follows the same process on a `hotfix/` branch. Keeping the PR
