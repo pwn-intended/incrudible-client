@@ -2675,14 +2675,12 @@ export const APP = {
             }
 
             /**
-             * The list's filled rows, trimmed. Blank rows drop out, and a
-             * list left entirely blank contributes no row at all.
+             * The list's filled rows. A list left entirely blank
+             * contributes no row at all.
              *
              * @type {string[]}
              */
-            const values = Array.from(control.querySelectorAll("input"))
-              .map((input) => input.value.trim())
-              .filter(Boolean);
+            const values = listValues(control);
 
             if (!values.length) {
               continue;
@@ -2975,8 +2973,18 @@ export const APP = {
            * @type {HTMLElement | null}
            */
           const source = control.ownerDocument?.getElementById(id);
+          /**
+           * The source's current value. A list's fieldset has no value of
+           * its own, so its filled rows stand in, joined the way a
+           * listbox joins its selections.
+           *
+           * @type {string | undefined}
+           */
+          const sourceValue = source?.matches("fieldset.list")
+            ? listValues(source).join(", ")
+            : source?.value;
 
-          if (!source?.value) {
+          if (!sourceValue) {
             return token;
           }
 
@@ -2993,7 +3001,7 @@ export const APP = {
            * @type {string}
            */
           const resolved = this.resolveValueReferences(
-            source.value,
+            sourceValue,
             source,
             chain,
           );
@@ -4033,6 +4041,19 @@ function getWizardController(fieldset) {
   return ["checkbox", "radio"].includes(fieldset.dataset.type)
     ? fieldset.previousElementSibling
     : fieldset.querySelector(":scope > .form-control");
+}
+
+/**
+ * A list's filled rows, trimmed. Blank rows drop out, so a list left
+ * entirely blank yields nothing.
+ *
+ * @param {HTMLFieldSetElement} fieldset - The list container.
+ * @returns {string[]} The row values, in row order.
+ */
+function listValues(fieldset) {
+  return Array.from(fieldset.querySelectorAll("input"), (input) =>
+    input.value.trim(),
+  ).filter(Boolean);
 }
 
 /**
