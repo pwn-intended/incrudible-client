@@ -222,11 +222,10 @@ for (const name of RULE_KEYS) {
  * @property {boolean} [checked] - Starts a checkbox or radio checked.
  * @property {boolean} [freeform] - Marks a checkbox or radio as paired with a free-text field.
  * @property {SchemaEntry[]} [members] - Child entries, for a fieldset.
- * @property {Array<{
- *   value: string,
- *   label?: string,
- *   icon?: string,
- * }>} [options] - Options for a select or listbox; a value-less option renders as a placeholder.
+ * @property {Array<
+ *   | { value: string, label?: string, icon?: string }
+ *   | { label: string, options: Array<{ value: string, label?: string, icon?: string }> }
+ * >} [options] - Options for a select or listbox; an entry with `options` renders as an optgroup, and a value-less option renders as a placeholder.
  * @property {Array<{
  *   test?: string | boolean,
  *   when?: Dependency[],
@@ -1700,7 +1699,13 @@ export const APP = {
           select.append(button);
         }
 
-        entry.options?.forEach((option) => {
+        /**
+         * Builds one option element.
+         *
+         * @param {{ value: string, label?: string, icon?: string }} option - The option's config.
+         * @returns {HTMLOptionElement} The rendered option.
+         */
+        const renderOption = (option) => {
           /**
            * The rendered option.
            *
@@ -1745,7 +1750,24 @@ export const APP = {
           optionLabel.innerHTML = option.label || option.value;
 
           element.append(optionLabel);
-          select.append(element);
+          return element;
+        };
+
+        entry.options?.forEach((option) => {
+          if (!("options" in option)) {
+            select.append(renderOption(option));
+            return;
+          }
+
+          /**
+           * The group holding this entry's options.
+           *
+           * @type {HTMLOptGroupElement}
+           */
+          const group = document.createElement("optgroup");
+          group.label = option.label;
+          group.append(...option.options.map(renderOption));
+          select.append(group);
         });
 
         fragment.append(select);

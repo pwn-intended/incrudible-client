@@ -902,6 +902,26 @@ fractional values freely instead of snapping to whole numbers.
 }
 ```
 
+### Option groups
+
+A `select` or `listbox` entry in `options` that has its own `options` array
+renders as an `<optgroup>` labeled by its `label`; any other entry is a direct
+option. Groups do not nest.
+
+```json
+"options": [
+	{ "label": "Choose", "value": "" },
+	{
+		"label": "Support",
+		"options": [
+			{ "label": "Billing", "value": "billing" },
+			{ "label": "Technical", "value": "technical" }
+		]
+	},
+	{ "label": "Other", "value": "other" }
+]
+```
+
 ### Value references
 
 Workflow `select` and `listbox` option values, checkbox/radio values, and any
