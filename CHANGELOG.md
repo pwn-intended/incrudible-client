@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/pwn-intended/incrudible-client/compare/v1.1.0...v1.2.0) (2026-10-19)
+
+
+### Features
+
+* support optgroups in select and listbox options ([#14](https://github.com/pwn-intended/incrudible-client/issues/14)) ([8d247af](https://github.com/pwn-intended/incrudible-client/commit/8d247af342569416003fca57015fe708d49d6eb4))
+
 ## [1.1.0](https://github.com/pwn-intended/incrudible-client/compare/incrudible-client-v1.0.0...incrudible-client-v1.1.0) (2026-10-14)
 
 
