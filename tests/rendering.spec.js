@@ -295,6 +295,42 @@ test("renders selects with rich options and a customizable-select shell", async 
   await expect(page.locator("#priority")).toHaveValue("high");
 });
 
+test("renders option entries with an options prop as optgroups", async ({
+  page,
+  app,
+}) => {
+  await renderSchema(page, [
+    {
+      type: "select",
+      id: "dept",
+      name: "dept",
+      label: "Department",
+      defaultValue: "tech",
+      options: [
+        { label: "Choose", value: "" },
+        {
+          label: "Support",
+          options: [
+            { label: "Billing", value: "billing" },
+            { label: "Technical", value: "tech" },
+          ],
+        },
+        { label: "Other", value: "other" },
+      ],
+    },
+  ]);
+
+  await expect(page.locator("#dept > optgroup")).toHaveCount(1);
+  await expect(page.locator("#dept > optgroup")).toHaveAttribute(
+    "label",
+    "Support",
+  );
+  await expect(page.locator("#dept > optgroup > option")).toHaveCount(2);
+  // Direct options stay siblings of the group, not children of it.
+  await expect(page.locator("#dept > option")).toHaveCount(2);
+  await expect(page.locator("#dept")).toHaveValue("tech");
+});
+
 test("renders listboxes with multi-selection defaults", async ({ page, app }) => {
   await renderSchema(page, [
     {
